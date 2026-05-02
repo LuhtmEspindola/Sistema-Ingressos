@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Ingressos — TicketHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<aside class="sidebar">
+  <a th:href="@{/}" class="sidebar-brand">
+    <div class="brand-logo">🎟</div>
+    <div class="brand-label"><span class="brand-name">TicketHub</span><span class="brand-sub">Ingressos</span></div>
+  </a>
+  <span class="sidebar-section">Menu</span>
+  <ul class="sidebar-nav">
+    <li><a th:href="@{/}"><span class="nav-icon">🏠</span>Dashboard</a></li>
+    <li><a th:href="@{/eventos}"><span class="nav-icon">📅</span>Eventos</a></li>
+    <li><a th:href="@{/ingressos}" class="active"><span class="nav-icon">🎟</span>Ingressos</a></li>
+    <li><a th:href="@{/ingressos/novo}"><span class="nav-icon">➕</span>Emitir Ingresso</a></li>
+  </ul>
+  <div class="sidebar-footer">v1.0 &bull; MongoDB Atlas</div>
+</aside>
+<div class="page-wrapper">
+<header class="topbar"><span class="topbar-title">Ingressos</span></header>
+<main class="main-content">
+  <div th:if="${mensagem}" class="alert alert-success" th:text="${mensagem}"></div>
+  <div class="page-header">
+    <div><h1 class="page-title">Ingressos</h1><p class="page-subtitle">Todos os ingressos emitidos</p></div>
+    <a th:href="@{/ingressos/novo}" class="btn btn-primary">+ Emitir Ingresso</a>
+  </div>
+
+  <div style="display:flex;gap:.5rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <a th:href="@{/ingressos}" class="btn btn-ghost btn-sm" th:classappend="${tipoFiltro == null} ? 'btn-primary' : ''">Todos</a>
+    <a th:href="@{/ingressos(tipo=NORMAL)}" class="btn btn-ghost btn-sm" th:classappend="${tipoFiltro == 'NORMAL'} ? 'btn-primary' : ''">Normal</a>
+    <a th:href="@{/ingressos(tipo=VIP)}" class="btn btn-gold btn-sm" th:classappend="${tipoFiltro == 'VIP'} ? 'btn-gold' : ''">VIP</a>
+    <a th:href="@{/ingressos(tipo=MEIA)}" class="btn btn-ghost btn-sm" th:classappend="${tipoFiltro == 'MEIA'} ? 'btn-primary' : ''">Meia-Entrada</a>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="table">
+      <thead>
+        <tr><th>Tipo</th><th>Evento</th><th>Comprador</th><th>Data Evento</th><th>Valor</th><th>Acoes</th></tr>
+      </thead>
+      <tbody>
+        <tr th:each="i : ${ingressos}">
+          <td>
+            <span th:if="${i.tipo == 'VIP'}"    class="badge badge-vip">VIP</span>
+            <span th:if="${i.tipo == 'NORMAL'}" class="badge badge-normal">Normal</span>
+            <span th:if="${i.tipo == 'MEIA'}"   class="badge badge-meia">Meia</span>
+          </td>
+          <td th:text="${i.nomeEvento}"></td>
+          <td th:text="${i.nomeComprador}"></td>
+          <td th:text="${i.dataEvento}"></td>
+          <td th:text="'R$ ' + ${#numbers.formatDecimal(i.calcularValor(), 1, 2)}"></td>
+          <td class="actions-cell">
+            <a th:href="@{/ingressos/detalhe/{id}(id=${i.id})}" class="btn btn-secondary btn-sm">Ver Detalhe</a>
+            <form th:action="@{/ingressos/cancelar/{id}(id=${i.id})}" method="post" style="display:inline">
+              <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Cancelar ingresso?')">Cancelar</button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(ingressos)}">
+          <td colspan="6">
+            <div class="empty-state"><div class="empty-state-icon">🎟</div><p>Nenhum ingresso emitido.</p></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+<footer class="footer"><p>Sistema de Ingressos &copy; 2026</p></footer>
+</div>
+</body>
+</html>

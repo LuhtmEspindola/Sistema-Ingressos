@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Evento — TicketHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<aside class="sidebar">
+  <a th:href="@{/}" class="sidebar-brand">
+    <div class="brand-logo">🎟</div>
+    <div class="brand-label"><span class="brand-name">TicketHub</span><span class="brand-sub">Ingressos</span></div>
+  </a>
+  <span class="sidebar-section">Menu</span>
+  <ul class="sidebar-nav">
+    <li><a th:href="@{/}"><span class="nav-icon">🏠</span>Dashboard</a></li>
+    <li><a th:href="@{/eventos}" class="active"><span class="nav-icon">📅</span>Eventos</a></li>
+    <li><a th:href="@{/ingressos}"><span class="nav-icon">🎟</span>Ingressos</a></li>
+    <li><a th:href="@{/ingressos/novo}"><span class="nav-icon">➕</span>Emitir Ingresso</a></li>
+  </ul>
+  <div class="sidebar-footer">v1.0 &bull; MongoDB Atlas</div>
+</aside>
+<div class="page-wrapper">
+<header class="topbar"><span class="topbar-title">Eventos</span></header>
+<main class="main-content">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title" th:text="${evento.id != null} ? 'Editar Evento' : 'Novo Evento'">Evento</h1>
+      <p class="page-subtitle">Preencha os dados do evento</p>
+    </div>
+  </div>
+  <div class="form-card">
+    <form th:action="@{/eventos/salvar}" method="post">
+      <input type="hidden" th:field="*{id}" th:object="${evento}"/>
+      <div class="form-grid">
+        <div class="form-group form-group-full">
+          <label>Nome do Evento</label>
+          <input class="form-control" type="text" th:field="*{nome}" th:object="${evento}" required placeholder="Ex: Show Rock Nacional"/>
+        </div>
+        <div class="form-group">
+          <label>Local</label>
+          <input class="form-control" type="text" th:field="*{local}" th:object="${evento}" required placeholder="Ex: Arena Anhembi - SP"/>
+        </div>
+        <div class="form-group">
+          <label>Data do Evento</label>
+          <input class="form-control" type="text" th:field="*{data}" th:object="${evento}" required placeholder="Ex: 15/08/2025"/>
+        </div>
+        <div class="form-group">
+          <label>Preco Base (R$)</label>
+          <input class="form-control" type="number" step="0.01" min="0" th:field="*{precoBase}" th:object="${evento}" required placeholder="Ex: 120.00"/>
+        </div>
+        <div class="form-group">
+          <label>Capacidade</label>
+          <input class="form-control" type="number" min="1" th:field="*{capacidade}" th:object="${evento}" required placeholder="Ex: 5000"/>
+        </div>
+        <div class="form-group form-group-full">
+          <label>Descricao</label>
+          <input class="form-control" type="text" th:field="*{descricao}" th:object="${evento}" placeholder="Descricao breve do evento"/>
+        </div>
+      </div>
+      <div class="form-actions">
+        <a th:href="@{/eventos}" class="btn btn-ghost">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Salvar Evento</button>
+      </div>
+    </form>
+  </div>
+</main>
+<footer class="footer"><p>Sistema de Ingressos &copy; 2026</p></footer>
+</div>
+</body>
+</html>

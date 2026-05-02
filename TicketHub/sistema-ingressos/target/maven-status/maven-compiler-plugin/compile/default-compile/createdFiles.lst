@@ -1,0 +1,16 @@
+com\ingressos\model\IngressoMeia.class
+com\ingressos\model\Ingresso.class
+com\ingressos\model\Evento.class
+com\ingressos\repository\IngressoRepository.class
+com\ingressos\controller\HomeController.class
+com\ingressos\config\GlobalExceptionHandler.class
+com\ingressos\config\DataInitializer.class
+com\ingressos\IngressosApplication.class
+com\ingressos\service\IngressoService.class
+com\ingressos\model\IngressoVIP.class
+com\ingressos\config\WebConfig.class
+com\ingressos\service\EventoService.class
+com\ingressos\controller\IngressoController.class
+com\ingressos\repository\EventoRepository.class
+com\ingressos\controller\EventoController.class
+com\ingressos\model\IngressoNormal.class

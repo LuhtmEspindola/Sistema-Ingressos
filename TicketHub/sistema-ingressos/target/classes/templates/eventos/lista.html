@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Eventos — TicketHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<aside class="sidebar">
+  <a th:href="@{/}" class="sidebar-brand">
+    <div class="brand-logo">🎟</div>
+    <div class="brand-label"><span class="brand-name">TicketHub</span><span class="brand-sub">Ingressos</span></div>
+  </a>
+  <span class="sidebar-section">Menu</span>
+  <ul class="sidebar-nav">
+    <li><a th:href="@{/}"><span class="nav-icon">🏠</span>Dashboard</a></li>
+    <li><a th:href="@{/eventos}" class="active"><span class="nav-icon">📅</span>Eventos</a></li>
+    <li><a th:href="@{/ingressos}"><span class="nav-icon">🎟</span>Ingressos</a></li>
+    <li><a th:href="@{/ingressos/novo}"><span class="nav-icon">➕</span>Emitir Ingresso</a></li>
+  </ul>
+  <div class="sidebar-footer">v1.0 &bull; MongoDB Atlas</div>
+</aside>
+<div class="page-wrapper">
+<header class="topbar"><span class="topbar-title">Eventos</span></header>
+<main class="main-content">
+  <div th:if="${mensagem}" class="alert alert-success" th:text="${mensagem}"></div>
+  <div class="page-header">
+    <div><h1 class="page-title">Eventos</h1><p class="page-subtitle">Gerencie os eventos disponíveis</p></div>
+    <a th:href="@{/eventos/novo}" class="btn btn-primary">+ Novo Evento</a>
+  </div>
+  <form th:action="@{/eventos}" method="get" class="search-bar">
+    <input class="search-input" type="text" name="busca" placeholder="Buscar evento..." th:value="${busca}"/>
+    <button type="submit" class="btn btn-secondary">Buscar</button>
+    <a th:if="${busca}" th:href="@{/eventos}" class="btn btn-ghost">Limpar</a>
+  </form>
+  <div class="table-wrapper">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Evento</th><th>Local</th><th>Data</th><th>Preco Base</th><th>Vagas</th><th>Acoes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="e : ${eventos}">
+          <td th:text="${e.nome}"></td>
+          <td th:text="${e.local}"></td>
+          <td th:text="${e.data}"></td>
+          <td th:text="'R$ ' + ${#numbers.formatDecimal(e.precoBase, 1, 2)}"></td>
+          <td>
+            <span th:text="${e.vagasRestantes() + ' / ' + e.capacidade}"></span>
+            <span th:if="${!e.temVagasDisponiveis()}" class="badge badge-danger" style="margin-left:.5rem">Esgotado</span>
+          </td>
+          <td class="actions-cell">
+            <a th:href="@{/ingressos/novo(eventoId=${e.id})}" class="btn btn-primary btn-sm">Emitir</a>
+            <a th:href="@{/eventos/editar/{id}(id=${e.id})}" class="btn btn-secondary btn-sm">Editar</a>
+            <form th:action="@{/eventos/remover/{id}(id=${e.id})}" method="post" style="display:inline">
+              <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remover evento?')">Remover</button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(eventos)}">
+          <td colspan="6">
+            <div class="empty-state"><div class="empty-state-icon">📅</div><p>Nenhum evento cadastrado.</p></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+<footer class="footer"><p>Sistema de Ingressos &copy; 2026</p></footer>
+</div>
+</body>
+</html>

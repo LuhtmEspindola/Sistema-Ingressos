@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Emitir Ingresso — TicketHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<aside class="sidebar">
+  <a th:href="@{/}" class="sidebar-brand">
+    <div class="brand-logo">🎟</div>
+    <div class="brand-label"><span class="brand-name">TicketHub</span><span class="brand-sub">Ingressos</span></div>
+  </a>
+  <span class="sidebar-section">Menu</span>
+  <ul class="sidebar-nav">
+    <li><a th:href="@{/}"><span class="nav-icon">🏠</span>Dashboard</a></li>
+    <li><a th:href="@{/eventos}"><span class="nav-icon">📅</span>Eventos</a></li>
+    <li><a th:href="@{/ingressos}"><span class="nav-icon">🎟</span>Ingressos</a></li>
+    <li><a th:href="@{/ingressos/novo}" class="active"><span class="nav-icon">➕</span>Emitir Ingresso</a></li>
+  </ul>
+  <div class="sidebar-footer">v1.0 &bull; MongoDB Atlas</div>
+</aside>
+<div class="page-wrapper">
+<header class="topbar"><span class="topbar-title">Emitir Ingresso</span></header>
+<main class="main-content">
+  <div th:if="${erro}" class="alert alert-error" th:text="${erro}"></div>
+  <div class="page-header">
+    <div><h1 class="page-title">Emitir Ingresso</h1><p class="page-subtitle">Selecione o tipo e preencha os dados do comprador</p></div>
+  </div>
+
+  <div class="info-box">
+    O valor do ingresso e calculado automaticamente pelo tipo selecionado (polimorfismo):
+    Normal = preco base inteiro | VIP = preco base x 1,8 | Meia-Entrada = preco base x 0,5
+  </div>
+
+  <div class="form-card">
+    <form th:action="@{/ingressos/emitir}" method="post" id="formIngresso">
+
+      <div class="form-grid">
+        <div class="form-group form-group-full">
+          <label>Evento</label>
+          <select class="form-control" name="eventoId" required id="selectEvento" onchange="atualizarPreco()">
+            <option value="">Selecione um evento...</option>
+            <option th:each="e : ${eventos}"
+                    th:value="${e.id}"
+                    th:text="${e.nome + ' — ' + e.local + ' (' + e.data + ') — R$ ' + e.precoBase}"
+                    th:attr="data-preco=${e.precoBase}, data-vagas=${e.vagasRestantes()}"
+                    th:disabled="${!e.temVagasDisponiveis()}">
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Nome do Comprador</label>
+          <input class="form-control" type="text" name="nomeComprador" required placeholder="Nome completo"/>
+        </div>
+        <div class="form-group">
+          <label>CPF do Comprador</label>
+          <input class="form-control" type="text" name="cpfComprador" required placeholder="000.000.000-00"/>
+        </div>
+      </div>
+
+      <div class="section-header" style="margin-bottom:.75rem">
+        <span class="section-title">Tipo de Ingresso</span>
+      </div>
+
+      <div class="tipo-selector" id="tipoSelector">
+        <label class="tipo-option" id="opt-NORMAL" onclick="selecionarTipo('NORMAL')">
+          <input type="radio" name="tipo" value="NORMAL" checked/>
+          <div class="tipo-icon">🎫</div>
+          <div class="tipo-name">Normal</div>
+          <div class="tipo-desc">Preco base inteiro</div>
+          <div class="tipo-desc" id="valor-NORMAL" style="margin-top:.4rem;font-weight:700;color:#a5b4fc">R$ —</div>
+        </label>
+        <label class="tipo-option" id="opt-VIP" onclick="selecionarTipo('VIP')">
+          <input type="radio" name="tipo" value="VIP"/>
+          <div class="tipo-icon">⭐</div>
+          <div class="tipo-name">VIP</div>
+          <div class="tipo-desc">Area especial + 80% acrescimo</div>
+          <div class="tipo-desc" id="valor-VIP" style="margin-top:.4rem;font-weight:700;color:#fbbf24">R$ —</div>
+        </label>
+        <label class="tipo-option" id="opt-MEIA" onclick="selecionarTipo('MEIA')">
+          <input type="radio" name="tipo" value="MEIA"/>
+          <div class="tipo-icon">🪪</div>
+          <div class="tipo-name">Meia-Entrada</div>
+          <div class="tipo-desc">50% de desconto</div>
+          <div class="tipo-desc" id="valor-MEIA" style="margin-top:.4rem;font-weight:700;color:#10b981">R$ —</div>
+        </label>
+      </div>
+
+      <div class="form-group" id="grupoMotivoMeia" style="display:none;margin-top:1rem">
+        <label>Motivo da Meia-Entrada</label>
+        <select class="form-control" name="motivoMeia">
+          <option value="Estudante">Estudante (carteirinha)</option>
+          <option value="Idoso (60+)">Idoso (60+)</option>
+          <option value="Pessoa com Deficiencia">Pessoa com Deficiencia (PCD)</option>
+          <option value="Jovem de baixa renda (15-29 anos)">Jovem de baixa renda (15-29 anos)</option>
+        </select>
+      </div>
+
+      <div class="form-actions" style="margin-top:1.5rem">
+        <a th:href="@{/ingressos}" class="btn btn-ghost">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Emitir Ingresso</button>
+      </div>
+    </form>
+  </div>
+</main>
+<footer class="footer"><p>Sistema de Ingressos &copy; 2026</p></footer>
+</div>
+
+<script>
+  let tipoAtual = 'NORMAL';
+
+  function selecionarTipo(tipo) {
+    tipoAtual = tipo;
+    ['NORMAL','VIP','MEIA'].forEach(t => {
+      const el = document.getElementById('opt-' + t);
+      el.classList.remove('selected-normal','selected-vip','selected-meia');
+    });
+    const cls = tipo === 'NORMAL' ? 'selected-normal' : tipo === 'VIP' ? 'selected-vip' : 'selected-meia';
+    document.getElementById('opt-' + tipo).classList.add(cls);
+    document.getElementById('grupoMotivoMeia').style.display = tipo === 'MEIA' ? 'flex' : 'none';
+    atualizarPreco();
+  }
+
+  function atualizarPreco() {
+    const sel = document.getElementById('selectEvento');
+    const opt = sel.options[sel.selectedIndex];
+    const preco = parseFloat(opt.getAttribute('data-preco')) || 0;
+    const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',');
+    document.getElementById('valor-NORMAL').textContent = preco > 0 ? fmt(preco)        : 'R$ —';
+    document.getElementById('valor-VIP').textContent    = preco > 0 ? fmt(preco * 1.8)  : 'R$ —';
+    document.getElementById('valor-MEIA').textContent   = preco > 0 ? fmt(preco * 0.5)  : 'R$ —';
+  }
+
+  // Inicializa com NORMAL selecionado
+  selecionarTipo('NORMAL');
+</script>
+</body>
+</html>
